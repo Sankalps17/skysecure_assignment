@@ -173,6 +173,7 @@ skysecure_assignment/
 │   └── styles.py             # Teams-like CSS for adaptive cards
 │
 └── docs/                     # Documentation
+    ├── ARCHITECTURE.md       # Full system architecture, LLM flow, token economics, examples
     └── ZOHO_API_REFERENCE.md # Every Zoho API endpoint used, with params and responses
 ```
 
@@ -241,15 +242,27 @@ ZohoProjects.timesheets.READ
 
 ## Assignment Compliance
 
+### Core Requirements
+
 | Requirement | Status | Implementation |
 |---|---|---|
 | Natural language querying | ✅ | Gemini/OpenAI LLM with 10 LangChain tools |
-| "List all tasks" | ✅ | `list_tasks` tool with adaptive cards |
+| "List all tasks" | ✅ | `list_tasks` tool → adaptive cards with progress bars |
 | "Show projects due this month" | ✅ | Date range filtering with `due_after`/`due_before` |
-| "Utilization of each team member" | ✅ | v3 Time Logs API → bar chart + table |
-| Adaptive cards | ✅ | Task cards with status badges and action buttons |
-| Assign tasks to employees | ✅ | Multi-person assignment by name |
-| Update task statuses | ✅ | Custom status resolution via task layouts |
+| "Utilization of each team member" | ✅ | v3 Time Logs API → bar chart + summary table |
+| Adaptive cards with actions | ✅ | Cards with Complete, Update Status, Reassign, Details, Delete buttons |
+| Assign tasks from UI | ✅ | Reassign button on cards + natural language + Create Task form |
+| Update task statuses from UI | ✅ | Update Status button on cards + natural language commands |
+| Review team utilization from UI | ✅ | Quick action button + chart + table rendering |
 | RBAC / permission models | ✅ | Zoho API enforces per-user OAuth permissions |
 | OAuth 2.0 authentication | ✅ | Authorization code + refresh token + multi-datacenter |
 | Secure token management | ✅ | Session-only storage, auto-refresh, no disk persistence |
+
+### Bonus Features
+
+| Bonus | Status | Implementation |
+|---|---|---|
+| Adaptive Cards & Rich UI | ✅ | Teams-style cards with status badges, progress bars, 5 action buttons |
+| Multi-Platform Deployment | ✅ | Local-hosted (Streamlit), easily deployable to any Python host |
+| Extensibility | ✅ | Modular architecture — separate `zoho/` client layer, swappable LLM provider |
+| Create Task from UI | ✅ | Sidebar form with name, priority, due date, and assignee fields |

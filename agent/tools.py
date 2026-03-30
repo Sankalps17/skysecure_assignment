@@ -508,8 +508,10 @@ def create_task(
             fields["description"] = description
 
         result = client.create_task(task_name, **fields)
-        created = result.get("tasks", [{}])[0]
-        task_id = created.get("id_string", "")
+        tasks_list = result.get("tasks", [])
+        if not tasks_list:
+            return f'Error: Task "{task_name}" could not be created — no confirmation from Zoho.'
+        task_id = tasks_list[0].get("id_string", "")
         assignee_msg = f" and assigned to {assignee_names}" if assignee_names else ""
         return f'Success: Task "{task_name}" has been created (ID: {task_id}){assignee_msg}.'
     except Exception as e:
@@ -532,7 +534,7 @@ def delete_task(task_name: str) -> str:
         task = _find_task_by_name(tasks, task_name)
 
         if not task:
-            available = ", ".join(f'"{ t.name}"' for t in tasks[:10])
+            available = ", ".join(f'"{t.name}"' for t in tasks[:10])
             return f'No task found matching "{task_name}". Available: {available}'
 
         client.delete_task(task.id)

@@ -122,7 +122,7 @@ class ZohoClient:
         """Fetch all portals accessible to the authenticated user."""
         data = self._get("/portals/")
         return [
-            Portal(id=p["id_string"], name=p["name"])
+            Portal(id=p.get("id_string", ""), name=p.get("name", ""))
             for p in data.get("portals", [])
         ]
 
@@ -131,8 +131,8 @@ class ZohoClient:
         data = self._get(f"/portal/{self.portal_id}/projects/")
         return [
             Project(
-                id=p["id_string"],
-                name=p["name"],
+                id=p.get("id_string", ""),
+                name=p.get("name", ""),
                 status=p.get("status", "active"),
                 owner_name=p.get("owner_name", ""),
                 task_count_open=p.get("task_count", {}).get("open", 0),
@@ -189,8 +189,9 @@ class ZohoClient:
     def _parse_task(self, t: dict) -> Task:
         """Convert a raw Zoho task dict into a Task model."""
         owners = [
-            TaskOwner(id=o["id"], name=o["name"])
+            TaskOwner(id=str(o.get("id", o.get("zpuid", ""))), name=o.get("name", ""))
             for o in t.get("details", {}).get("owners", [])
+            if o.get("name")  # skip empty/placeholder owner entries
         ]
         status_raw = t.get("status", {})
         if isinstance(status_raw, str):
@@ -203,7 +204,7 @@ class ZohoClient:
             )
         return Task(
             id=t.get("id_string", str(t.get("id", ""))),
-            name=t["name"],
+            name=t.get("name", ""),
             status=status,
             priority=t.get("priority", "None"),
             start_date=t.get("start_date", ""),
@@ -221,7 +222,7 @@ class ZohoClient:
         return [
             User(
                 id=u.get("id", ""),
-                name=u["name"],
+                name=u.get("name", ""),
                 email=u.get("email", ""),
                 role=u.get("role", ""),
             )

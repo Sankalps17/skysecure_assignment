@@ -50,8 +50,11 @@ def exchange_code(code: str, domain: str = "") -> ZohoTokens:
     data = resp.json()
 
     if "error" in data:
-        desc = data.get("error_description", data["error"])
+        desc = data.get("error_description", data.get("error", "Unknown"))
         raise ValueError(f"Zoho OAuth error: {desc}")
+
+    if "access_token" not in data or "refresh_token" not in data:
+        raise ValueError(f"Incomplete OAuth response — missing tokens")
 
     logger.info("Zoho tokens obtained via authorization code (domain: %s)", effective_domain)
     return ZohoTokens(
@@ -80,8 +83,11 @@ def refresh_access_token(current_refresh_token: str, domain: str = "") -> ZohoTo
     data = resp.json()
 
     if "error" in data:
-        desc = data.get("error_description", data["error"])
+        desc = data.get("error_description", data.get("error", "Unknown"))
         raise ValueError(f"Zoho token refresh error: {desc}")
+
+    if "access_token" not in data:
+        raise ValueError(f"Incomplete refresh response — missing access_token")
 
     logger.info("Zoho access token refreshed (domain: %s)", effective_domain)
     return ZohoTokens(
